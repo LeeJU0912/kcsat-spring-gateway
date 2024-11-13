@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: community
+            uri: http://kcsat-spring-community:8080
+            predicates:
+              - Path=/api/community/**
+          - id: question
+            uri: http://kcsat-spring-question:8080
+            predicates:
+              - Path=/api/question/**
