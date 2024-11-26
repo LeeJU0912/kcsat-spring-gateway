@@ -16,7 +16,7 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Arrays.asList("http://csatmaker.site", "http://www.csatmaker.site"));
+        config.setAllowedOrigins(Arrays.asList("https://csatmaker.site", "https://www.csatmaker.site"));
         config.setAllowCredentials(true);  // 자격 증명 허용
         config.addAllowedHeader("*");  // 모든 헤더 허용
         config.addAllowedMethod("*");  // 모든 HTTP 메서드 허용
