@@ -1,4 +1,4 @@
-package hpclab.kcsatspringgateway;
+package hpclab.kcsatspringgateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +8,9 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 
+/**
+ * CORS 설정을 담당하는 클래스입니다.
+ */
 @Configuration
 public class CorsConfig {
 

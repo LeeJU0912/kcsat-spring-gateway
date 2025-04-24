@@ -1,3 +1,6 @@
+jwt:
+  secret: ${JWT_SECRET}
+
 spring:
   cloud:
     gateway:
@@ -11,3 +14,7 @@ spring:
             uri: http://kcsat-spring-question:8080
             predicates:
               - Path=/api/question/**
+  data:
+    redis:
+      host: ${REDIS_DATASOURCE_HOST}
+      port: 6379
