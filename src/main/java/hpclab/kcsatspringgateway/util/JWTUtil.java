@@ -1,5 +1,6 @@
 package hpclab.kcsatspringgateway.util;
 
+import hpclab.kcsatspringgateway.dto.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -18,7 +19,10 @@ import java.util.UUID;
 @Component
 public class JWTUtil {
 
-    private static final Long expiredMs = 3600000L;
+    // AccessToken 15분 제한
+    private static final long accessTokenValidity = 1000 * 60 * 15;
+    // RefreshToken 1일 제한
+    private static final long refreshTokenValidity = 1000L * 60 * 60 * 24 * 1;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -37,15 +41,41 @@ public class JWTUtil {
     public static final String USER_NAME = "userName";
     public static final String ROLE = "role";
 
-    // 토큰 생성 메서드
-    public String generateToken(String userEmail, String userName, String role) {
+    // GUEST Access 토큰 생성 메서드
+    public String generateGuestAccessToken() {
+        return Jwts.builder()
+                .claim(USER_EMAIL, "guest@csatmaker.site")
+                .claim(USER_NAME, "GUEST")
+                .claim(ROLE, Role.ROLE_GUEST.getValue())
+                .id(UUID.randomUUID().toString())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1시간
+                .signWith(key)
+                .compact();
+    }
+
+    // Access 토큰 생성 메서드
+    public String generateAccessToken(String userEmail, String userName, String role) {
         return Jwts.builder()
                 .claim(USER_EMAIL, userEmail)
                 .claim(USER_NAME, userName)
                 .claim(ROLE, role)
                 .id(UUID.randomUUID().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenValidity))
+                .signWith(key)
+                .compact();
+    }
+
+    // Refresh 토큰 생성 메서드
+    public String generateRefreshToken(String userEmail, String userName, String role) {
+        return Jwts.builder()
+                .claim(USER_EMAIL, userEmail)
+                .claim(USER_NAME, userName)
+                .claim(ROLE, role)
+                .id(UUID.randomUUID().toString())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenValidity))
                 .signWith(key)
                 .compact();
     }

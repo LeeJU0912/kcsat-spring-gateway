@@ -2,7 +2,6 @@ package hpclab.kcsatspringgateway.service;
 
 import hpclab.kcsatspringgateway.dto.MemberAuthResponseForm;
 import hpclab.kcsatspringgateway.dto.MemberSignInForm;
-import hpclab.kcsatspringgateway.dto.Role;
 import hpclab.kcsatspringgateway.exception.ApiException;
 import hpclab.kcsatspringgateway.exception.ErrorCode;
 import hpclab.kcsatspringgateway.util.JWTUtil;
@@ -29,6 +28,7 @@ public class AuthService {
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String BLACKLIST_PREFIX = "blacklist:";
+    private static final String REFRESH_PREFIX = "refresh:";
 
     /**
      * 로그인 관련 로직입니다.
@@ -51,7 +51,15 @@ public class AuthService {
             throw new ApiException(ErrorCode.USER_VERIFICATION_FAILED);
         }
 
-        return jwtUtil.generateToken(member.getEmail(), member.getUsername(), member.getRole());
+        saveNewRefreshToken(member);
+
+        return jwtUtil.generateAccessToken(member.getEmail(), member.getUsername(), member.getRole());
+    }
+
+    private void saveNewRefreshToken(MemberAuthResponseForm member) {
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail(), member.getUsername(), member.getRole());
+        String uuid = jwtUtil.getClaims(refreshToken).getId();
+        redisTemplate.opsForValue().set(REFRESH_PREFIX + uuid, refreshToken, 1, TimeUnit.DAYS);
     }
 
     /**
@@ -59,7 +67,7 @@ public class AuthService {
      * @return JWT 토큰 발급
      */
     public String guestLogin() {
-        return jwtUtil.generateToken(null, null, Role.ROLE_GUEST.getValue());
+        return jwtUtil.generateGuestAccessToken();
     }
 
 
